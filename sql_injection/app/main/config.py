@@ -29,7 +29,7 @@ class DevelopmentConfig(Config):
     HOST = "localhost"
 
     # uncomment the line below to see SQLALCHEMY queries
-    SQLALCHEMY_ECHO = True
+    # SQLALCHEMY_ECHO = True
 
 
 class StagingConfig(Config):

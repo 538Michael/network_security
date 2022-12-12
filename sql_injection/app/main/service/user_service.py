@@ -1,6 +1,5 @@
 import math
 
-import bcrypt
 from werkzeug.datastructures import ImmutableMultiDict
 
 from .. import db
@@ -45,8 +44,6 @@ def save_new_user(data: dict[str, str]) -> None:
     if user:
         raise DefaultException("username_in_use", code=409)
 
-    password = hash_password(password)
-
     new_user = User(
         username=username,
         password=password,
@@ -58,8 +55,3 @@ def save_new_user(data: dict[str, str]) -> None:
 def save_changes(data: User) -> None:
     db.session.add(data)
     db.session.commit()
-
-
-def hash_password(password: str) -> str:
-    password = password.encode("utf-8")
-    return bcrypt.hashpw(password, bcrypt.gensalt()).decode("utf-8")

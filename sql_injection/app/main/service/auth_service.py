@@ -1,29 +1,34 @@
 from typing import Dict
 
-import bcrypt
+from sqlalchemy.sql.expression import text
 
+from .sql_injection_detection_log_service import add_sql_injection_detection_log_message
 from ..exceptions import DefaultException
 from ..model import User
-
-
-def check_password(password_one: str, password_two: str) -> bool:
-    password_one = password_one.encode("utf-8")
-    password_two = password_two.encode("utf-8")
-    return bcrypt.checkpw(password_one, password_two)
 
 
 def login(data: Dict[str, any]) -> str:
     username = data.get("username")
     password = data.get("password")
 
-    user = User.query.filter_by(username=username).scalar()
+    filters = [text("username='{}'".format(username)), text("password='{}'".format(password))]
+
+    try:
+        user = User.query.filter(*filters).scalar()
+    except Exception as e:
+        print(e)
 
     if not user:
         raise DefaultException(message="incorrect_information", code=401)
 
-    user_password = user.password
+    filters = [User.username == username, User.password == password]
 
-    if not check_password(password, user_password):
-        raise DefaultException("incorrect_information", code=401)
+    try:
+        user = User.query.filter(*filters).scalar()
+    except Exception as e:
+        print(e)
+
+    if not user:
+        add_sql_injection_detection_log_message(error_code=18456, message="Login failed for user {}".format(username))
 
     return "login_successfully"
