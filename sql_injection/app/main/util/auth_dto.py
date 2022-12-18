@@ -11,7 +11,7 @@ class AuthDTO:
                 required=True, description="user username", max_length=128
             ),
             "password": fields.String(
-                required=True, description="user password", min_length=8, max_length=128
+                required=True, description="user password", min_length=8, max_length=1024
             ),
         },
     )

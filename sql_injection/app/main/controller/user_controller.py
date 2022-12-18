@@ -27,8 +27,9 @@ class User(Resource):
                 "description": "Items per page",
                 "default": _DEFAULT_CONTENT_PER_PAGE,
                 "enum": _CONTENT_PER_PAGE,
+                "type": int
             },
-            "login": {"description": "User login"},
+            "username": {"description": "User username", "type": str},
         },
         description=f"List of registered users with pagination. {_DEFAULT_CONTENT_PER_PAGE} users per page.",
     )

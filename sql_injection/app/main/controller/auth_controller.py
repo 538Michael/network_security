@@ -20,5 +20,5 @@ class Login(Resource):
     def post(self):
         """User login"""
         data = request.json
-        login(data=data)
+        login(ip=request.remote_addr, data=data)
         return {"message": "login_successfully"}, 200

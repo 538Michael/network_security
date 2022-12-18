@@ -8,8 +8,9 @@ class SQLInjectionDetectionLog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     occurred_at = db.Column(db.DateTime, server_default=func.now())
-    error_code = db.Column(db.Integer, nullable=False)
+    ip = db.Column(db.String, nullable=False)
     message = db.Column(db.String, nullable=False)
+    error_code = db.Column(db.String)
 
     def __repr__(self) -> str:
         return f"<SQLInjectionDetectionLog {self.message}>"
