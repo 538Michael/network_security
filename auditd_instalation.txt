@@ -25,6 +25,7 @@ keep logs after rotation
 
 #### RULE CREATION ####
 
+a. Create time-change rules to make sure events are collected on correct date or time.
 $ nvim /etc/audit/rules.d/time.rules
 then, add:
 -a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
@@ -32,6 +33,7 @@ then, add:
 -a always,exit -F arch=b64 -S clock_settime -k time-change
 -a always,exit -F arch=b32 -S clock_settime -k time-change -w /etc/localtime -p wa -k time-change
 
+b. Create system-locale rules to record changes to network files or system calls
 $ nvim /etc/audit/rules.d/system-locale.rules
 then, add:
 -a always,exit -F arch=b64 -S sethostname -S setdomainname -k system-locale
@@ -41,6 +43,7 @@ then, add:
 -w /etc/hosts -p wa -k system-locale
 -w /etc/network -p wa -k system-locale
 
+c. Create identity rules to record user related information, e.g. username, passwords, group
 $ nvim /etc/audit/rules.d/identity.rules
 then, add:
 -w /etc/group -p wa -k identity
@@ -49,12 +52,14 @@ then, add:
 -w /etc/shadow -p wa -k identity
 -w /etc/security/opasswd -p wa -k identity
 
+d. Create login rules to record login and logout events.
 $ nvim /etc/audit/rules.d/logins.rules
 then, add:
 -w /var/log/faillog -p wa -k logins
 -w /var/log/lastlog -p wa -k logins
 -w /var/log/tallylog -p wa -k logins
 
+e. Create permission mode rules to monitor file attributes, ownership and permission changes
 $ nvim /etc/audit/rules.d/permissions.rules
 then, add:
 -a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod
@@ -66,20 +71,24 @@ then, add:
 -a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=1000 -F auid!=4294967295
 -k perm_mod
 
+f. Create file-change rules to monitor file renaming or deletion.
 $ nvim /etc/audit/rules.d/file-change.rules
 -a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete
 -a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete
 
+g. Create scope rules to monitor scope changes particularly the /etc/sudoers file
 $ nvim /etc/audit/rules.d/scope.rules
 then, add
 -w /etc/sudoers -p wa -k scope
 -w /etc/sudoers.d/ -p wa -k scope
 
+h. Create sudo rules to monitor the administrators with temporary elevated privileges
 $ nvim /etc/audit/rules.d/sudo.rules
 then, add
 -a always,exit -F arch=b64 -C euid!=uid -F euid=0 -Fauid>=1000 -F auid!=4294967295 -S execve -k actions
 -a always,exit -F arch=b32 -C euid!=uid -F euid=0 -Fauid>=1000 -F auid!=4294967295 -S execve -k actions
 
+i. Create modules rules to monitor for any loading and unloading of kernel modules using the insmod,rmmod or modprobe commands.
 $ nvim /etc/audit/rules.d/modules.rules
 -w /sbin/insmod -p x -k modules
 -w /sbin/rmmod -p x -k modules
