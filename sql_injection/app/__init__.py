@@ -1,6 +1,5 @@
 # docker compose up  --build --force-recreate --no-deps
 
-from flask import Blueprint
 from flask_restx import Api
 
 from .main.controller import (
@@ -10,14 +9,11 @@ from .main.controller import (
 from .main.exceptions import DefaultException, ValidationException
 from .main.util import DefaultResponsesDTO
 
-blueprint = Blueprint("api", __name__)
-
 authorizations = {
     "api_key": {"type": "apiKey", "in": "header", "name": "Authorization"}
 }
 
 api = Api(
-    blueprint,
     authorizations=authorizations,
     title="Network Security",
     version="1.0",

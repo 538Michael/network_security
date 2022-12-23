@@ -2,14 +2,14 @@ import os
 
 from werkzeug.exceptions import HTTPException
 
-from app import blueprint
+from app import api
 from app.main import create_app, db
 from seeder import create_seed
 
 env_name = os.environ.get("ENV_NAME", "dev")
 
 app = create_app(env_name)
-app.register_blueprint(blueprint)
+api.init_app(app)
 
 
 # Global Exception Error
@@ -18,13 +18,13 @@ def handle_exception(error):
     print(error)
     if isinstance(error, HTTPException):
         return {
-                   "error": {"message": str(error)},
-               }, error.code
+            "error": {"message": str(error)},
+        }, error.code
     return {
-               "error": {
-                   "message": str(error),
-               }
-           }, 200
+        "error": {
+            "message": str(error),
+        }
+    }, 200
 
 
 app.app_context().push()
