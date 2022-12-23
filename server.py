@@ -13,9 +13,10 @@ while True:
     server_ssl = ssl.wrap_socket(
         obj,
         server_side=True,
-        certfile="./cert.pem",
+        certfile="./cert.crt",
         keyfile="./key.pem",
-        ssl_version=ssl.PROTOCOL_TLSv1
+        ciphers="AES256-GCM-SHA384",
+        ssl_version=ssl.PROTOCOL_TLSv1_2
     )
 
     try:
