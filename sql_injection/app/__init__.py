@@ -4,7 +4,8 @@ from flask_restx import Api
 
 from .main.controller import (
     user_ns,
-    auth_ns
+    auth_ns,
+    auth_log_ns
 )
 from .main.exceptions import DefaultException, ValidationException
 from .main.util import DefaultResponsesDTO
@@ -23,6 +24,7 @@ api = Api(
 
 api.add_namespace(user_ns, path="/user")
 api.add_namespace(auth_ns, path="/auth")
+api.add_namespace(auth_log_ns, path="/auth_log")
 
 api.add_namespace(DefaultResponsesDTO.api)
 

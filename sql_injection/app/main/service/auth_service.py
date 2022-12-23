@@ -5,7 +5,7 @@ import sqlalchemy.exc
 from sqlalchemy.sql.expression import text
 
 from app.main import db
-from .sql_injection_detection_log_service import add_sql_injection_detection_log_message
+from .auth_log_service import add_auth_log_message
 from ..exceptions import DefaultException
 from ..model import User
 
@@ -22,9 +22,9 @@ def regex_check(ip: str, strings: list):
             regex = re.search(expression, string, re.IGNORECASE)
 
             if regex:
-                add_sql_injection_detection_log_message(ip=ip,
-                                                        message="SQL Injection detected using {}.".format(
-                                                            regex.group(1).upper()))
+                add_auth_log_message(ip=ip,
+                                     message="SQL Injection detected using {}.".format(
+                                         regex.group(1).upper()))
                 raise DefaultException("sql_injection_detected", code=200)
 
 
@@ -46,17 +46,17 @@ def login(ip: str, data: Dict[str, any]) -> str:
         if e.args and e.args[0]:
             error_msg = e.args[0].split('\n')[0]
             error_msg = error_msg[error_msg.find(')') + 2:].capitalize()
-        add_sql_injection_detection_log_message(ip=ip, message="{}.".format(error_msg),
-                                                error_code=e.orig.pgcode)
+        add_auth_log_message(ip=ip, message="{}.".format(error_msg),
+                             error_code=e.orig.pgcode)
         raise DefaultException("incorrect_information", code=401)
 
     if not user:
-        add_sql_injection_detection_log_message(ip=ip,
-                                                message="Login failed for user '{}'.".format(
-                                                    username), error_code=18456)
+        add_auth_log_message(ip=ip,
+                             message="Login failed for user '{}'.".format(
+                                 username), error_code=18456)
         raise DefaultException(message="incorrect_information", code=401)
     elif user.username != username:
-        add_sql_injection_detection_log_message(ip=ip, message="Login failed for user '{}'.".format(
+        add_auth_log_message(ip=ip, message="Login failed for user '{}'.".format(
             username), error_code=18456)
         raise DefaultException(message="incorrect_information", code=401)
 
@@ -69,7 +69,7 @@ def login(ip: str, data: Dict[str, any]) -> str:
     user = User.query.filter(*filters).scalar()
 
     if user and user.password != password:
-        add_sql_injection_detection_log_message(ip=ip, message="SQL Injection detected. Password: {}".format(password))
+        add_auth_log_message(ip=ip, message="SQL Injection detected. Password: {}".format(password))
         raise DefaultException("sql_injection_detected", code=200)
 
     return "login_successfully"
