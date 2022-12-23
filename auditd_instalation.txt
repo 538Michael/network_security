@@ -1,0 +1,88 @@
+Check if its intalled
+$ dpkg -s auditd audispd-plugins
+
+
+Instal the packages
+$ sudo apt install auditd audispd-plugins
+
+enable auditd service
+$ systemctl enable auditd
+
+enable it in the bootloader and raise its max_backlog_limit
+- /etc/default/grub, add line:
+	GRUB_CMDLINE_LINUX=”audit=1″
+	GRUB_CMDLINE_LINUX=”audit_backlog_limit=8192″
+
+update grub config
+$ update-grub
+
+
+keep logs after rotation
+- /etc/audit/auditd.conf, add line:
+	max_log_file_action = keep_logs
+	max_log_file = 20
+
+
+#### RULE CREATION ####
+
+$ nvim /etc/audit/rules.d/time.rules
+then, add:
+-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b64 -S clock_settime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change -w /etc/localtime -p wa -k time-change
+
+$ nvim /etc/audit/rules.d/system-locale.rules
+then, add:
+-a always,exit -F arch=b64 -S sethostname -S setdomainname -k system-locale
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/network -p wa -k system-locale
+
+$ nvim /etc/audit/rules.d/identity.rules
+then, add:
+-w /etc/group -p wa -k identity
+-w /etc/passwd -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/security/opasswd -p wa -k identity
+
+$ nvim /etc/audit/rules.d/logins.rules
+then, add:
+-w /var/log/faillog -p wa -k logins
+-w /var/log/lastlog -p wa -k logins
+-w /var/log/tallylog -p wa -k logins
+
+$ nvim /etc/audit/rules.d/permissions.rules
+then, add:
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=1000 -F auid!=4294967295
+-k perm_mod
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -F auid>=1000 -F auid!=4294967295
+-k perm_mod
+
+$ nvim /etc/audit/rules.d/file-change.rules
+-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete
+-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete
+
+$ nvim /etc/audit/rules.d/scope.rules
+then, add
+-w /etc/sudoers -p wa -k scope
+-w /etc/sudoers.d/ -p wa -k scope
+
+$ nvim /etc/audit/rules.d/sudo.rules
+then, add
+-a always,exit -F arch=b64 -C euid!=uid -F euid=0 -Fauid>=1000 -F auid!=4294967295 -S execve -k actions
+-a always,exit -F arch=b32 -C euid!=uid -F euid=0 -Fauid>=1000 -F auid!=4294967295 -S execve -k actions
+
+$ nvim /etc/audit/rules.d/modules.rules
+-w /sbin/insmod -p x -k modules
+-w /sbin/rmmod -p x -k modules
+-w /sbin/modprobe -p x -k modules
+-a always,exit -F arch=b64 -S init_module -S delete_module -k modules
+
