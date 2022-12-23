@@ -35,7 +35,7 @@ class DevelopmentConfig(Config):
 class StagingConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = (
-        "postgresql+psycopg2://postgres:postgres@network_security-db/sql_injection"
+        "postgresql+psycopg2://postgres:postgres@network_security_db/sql_injection"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ENV = "staging"
