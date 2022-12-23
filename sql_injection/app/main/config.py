@@ -21,7 +21,7 @@ class Config:
 class DevelopmentConfig(Config):
     # uncomment the line below to use postgres
     # SQLALCHEMY_DATABASE_URI = postgres_local_base
-    postgres_local_base = "postgresql+psycopg2://postgres:postgres@localhost/network_security"
+    postgres_local_base = "postgresql+psycopg2://postgres:postgres@localhost/sql_injection"
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = postgres_local_base
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -29,13 +29,13 @@ class DevelopmentConfig(Config):
     HOST = "localhost"
 
     # uncomment the line below to see SQLALCHEMY queries
-    # SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = True
 
 
 class StagingConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = (
-        "postgresql+psycopg2://postgres:postgres@hospital-db/hospital"
+        "postgresql+psycopg2://postgres:postgres@network_security-db/sql_injection"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ENV = "staging"
